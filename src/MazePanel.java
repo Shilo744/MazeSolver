@@ -25,8 +25,7 @@ public class MazePanel extends JPanel {
         setDoubleBuffered(true);
         resetButton.setBounds(0,0,100,50);
         resetButton.setText("solve");
-
-         path="C:\\Users\\Shilo\\Desktop\\Mazes\\MAZE"+mazeNumber;
+         path="src\\Mazes\\MAZE"+mazeNumber;
          png=".png";
          jpg=".jpg";
         resetButton.addActionListener((e)-> startSolving());
