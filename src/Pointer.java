@@ -1,4 +1,3 @@
-import javax.swing.*;
 import java.awt.*;
 import java.util.Stack;
 
@@ -9,7 +8,7 @@ public class Pointer {
     private Point lastPoint;
     private Point endPoint;
     private int widthAndHeight = 1;
-    private int speed=3;
+    private int speed=1;
     private Stack<SavePoint>savePoints=new Stack<>();
     private Stack<Point>junkPoints=new Stack<>();
 
@@ -81,16 +80,22 @@ public class Pointer {
         return legalMove;
     }
 
-    public void reset() {
-        if (!savePoints.isEmpty())
-        if(savePoints.peek().getMoves().isEmpty()){
-            savePoints.pop();
+    public void reset(){
+        try {
+            while (savePoints.size()>1 && savePoints.peek().getMoves().isEmpty()) {
+                savePoints.pop();
+            }
+                SavePoint savePoint = savePoints.peek();
+                savePoint.clearTruck();
+            x = savePoint.getLastLocation().x;
+                y = savePoint.getLastLocation().y;
+                if (!savePoint.getMoves().isEmpty()) {
+                    makeMove(savePoint.getMoves().pop());
+                    savePoints.peek().clearTruck();
+                }
+            } catch (Exception e) {
+            e.printStackTrace();
         }
-        SavePoint savePoint=savePoints.peek();
-        x= savePoint.getLastLocation().x;
-        y= savePoint.getLastLocation().y;
-        if(!savePoint.getMoves().isEmpty()){
-        makeMove(savePoint.getMoves().pop());}
     }
 
     private boolean checkCollusion(int move) {
@@ -163,11 +168,17 @@ public class Pointer {
     }
 
     public void chooseMove() {
+        int random;
         int choose;
+//        if(Objects.equals(savePoints.peek().getLastLocation(), new Point(x, y)) && savePoints.peek().getMoves()!=null){
+//            choose= savePoints.peek().getMoves().pop();
+//        }else {
+
         fillStuck();
-        byte random= (byte) (moves.size()*Math.random()-1);
+        random= (byte) (moves.size()*Math.random()-1);
                 choose = moves.get(random);
                 moves.remove(random);
+//        }
         makeMove(choose);
 
     }
@@ -180,6 +191,10 @@ public class Pointer {
     }
     private void makeMove(int choose){
         for (int i = 0; i < speed; i++) {
+            if(isEnd()){
+                break;
+            }
+            savePoints.peek().pushIntoTruck(x,y);
             savePoint();
             switch (choose) {
                 case 1 ->moveUp();
@@ -198,11 +213,11 @@ public class Pointer {
             }
         }
         int moreThan1ValidOption=1;
+        int a=x;
+        int b=y;
+        Point point=new Point(a,b);
         if(moves.size()>moreThan1ValidOption){
-            int a=x;
-            int b=y;
             SavePoint savePoint=new SavePoint(a,b,moves);
-            Point point=new Point(a,b);
             if(!pointExist(savePoint.getLastLocation())){
             savePoints.push(savePoint);
             junkPoints.push(point);}
@@ -226,7 +241,6 @@ public class Pointer {
                 y--;
             }
     }
-
     public void moveDown() {
         if (lastPoint.getY() != y + moveDown)
             if (legalMove(down)) {
@@ -234,7 +248,6 @@ public class Pointer {
                 y++;
             }
     }
-
     public void moveLeft() {
         if (lastPoint.getX() != x + moveLeft)
             if (legalMove(left)) {
@@ -253,30 +266,31 @@ public class Pointer {
     public void paint(Graphics graphics) {
         graphics.setColor(Color.green);
         graphics.fillRect(x, y, widthAndHeight, widthAndHeight);
+
         if(isEnd()){
             int maxColor=255;
-            int green=0;
-            int blue=0;
+            int green=150;
+            int blue=30;
             int red=0;
-            int chance=20;
-            int upTo=((int)maxColor /chance)*chance;
+            int chance=10;
+            int upTo=(maxColor /chance)*chance;
             Color toGreen=new Color(red,green,blue);
-                for (int i = 0; i < savePoints.size(); i++) {
-                    Point point=savePoints.get(i).getLastLocation();
+            for (SavePoint savePoint: savePoints) {
+
                     graphics.setColor(toGreen);
                     if(green<upTo){
                         green+=chance;
                     }else if(blue<upTo){
                         blue+=chance;
-                    }else if(red<upTo){
-                        red+=chance;
                     }
                     try {
                         toGreen=new Color(red,green,blue);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
+                for (Point point: savePoint.getTrack()){
                     graphics.fillRect(point.x,point.y,widthAndHeight,widthAndHeight);
+                }
                 }
                 }
     }

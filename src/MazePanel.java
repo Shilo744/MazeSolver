@@ -7,38 +7,64 @@ import java.io.IOException;
 
 public class MazePanel extends JPanel {
     private Pixel[][] maze;
+    private JButton resetButton=new JButton();
     private BufferedImage image;
     private static int imageWidth;
     private static int imageHeight;
     private Pointer pointer;
-    private int speed=50;
+    private int speed=10000;
+    private String path;
+    private String png;
+    private String jpg;
+    private int mazeNumber=5;
+    private final int forToMuch=1000000;
+    private int toMuch=forToMuch;
     MazePanel() {
         setLayout(null);
         setBackground(Color.black);
         setDoubleBuffered(true);
+        resetButton.setBounds(0,0,100,50);
+        resetButton.setText("solve");
 
+         path="C:\\Users\\Shilo\\Desktop\\Mazes\\MAZE"+mazeNumber;
+         png=".png";
+         jpg=".jpg";
+        resetButton.addActionListener((e)-> startSolving());
         try {
-            setMaze("C:\\Users\\Shilo\\Downloads\\MAZE1.png");
+            setMaze(path+png);
         } catch (IOException e) {
-            e.printStackTrace();
+            try {
+                setMaze(path+jpg);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
-            move();
-
+        add(resetButton);
+    }
+    public void startSolving(){
+        toMuch=forToMuch;
+        pointer=new Pointer(maze);
+        repaint();
     }
     public void move(){
             try {
-                for (int i = 0; i < speed; i++) {
+//                for (int i = 0; i < speed; i++)
+               while (!pointer.isEnd())
+               {
+                   toMuch--;
+                   if(toMuch==0){
+                       startSolving();
+                   }
                     if(pointer.isEnd()){
                         break;
                     }
                     if(!pointer.isStuck()){
                     pointer.chooseMove();}
-                    else pointer.reset();
+                    else{ pointer.reset();}
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
         repaint();
     }
     public void setMaze(String location) throws IOException {
@@ -57,7 +83,6 @@ public class MazePanel extends JPanel {
                 }
             }
         }
-        pointer = new Pointer(maze);
     }
 
     public void paintComponent(Graphics graphics) {
@@ -67,9 +92,10 @@ public class MazePanel extends JPanel {
                 maze[i][j].paint(graphics);
             }
         }
+        if(pointer!=null){
         pointer.paint(graphics);
         if(!pointer.isEnd())
-        move();
+        move();}
     }
 
     public BufferedImage getImage() {

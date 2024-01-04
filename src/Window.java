@@ -4,7 +4,7 @@ public class Window extends JFrame {
 
     Window() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setResizable(false);
+        setResizable(true);
         MazePanel mazePanel = new MazePanel();
         setSize(mazePanel.getImage().getWidth(), mazePanel.getImage().getHeight());
         setLocationRelativeTo(null);
