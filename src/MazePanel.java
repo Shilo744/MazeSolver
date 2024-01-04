@@ -12,7 +12,7 @@ public class MazePanel extends JPanel {
     private static int imageWidth;
     private static int imageHeight;
     private Pointer pointer;
-    private int speed=10000;
+    private int speed=9999;
     private String path;
     private String png;
     private String jpg;
